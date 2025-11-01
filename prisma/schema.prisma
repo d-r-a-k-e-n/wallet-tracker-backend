@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  updatedAt DateTime @default(now())
+
+  bills Bill[]
+
+  @@map("users")
+}
+
+model Categorie {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  subCategories SubCategory[]
+
+  @@map("categories")
+}
+
+model SubCategory {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  categoryId Int @map("category_id")
+
+  category     Categorie     @relation(fields: [categoryId], references: [id])
+  transactions Transaction[]
+
+  @@map("sub_categories")
+}
+
+model Bill {
+  id       Int    @id @default(autoincrement())
+  name     String
+  currency String
+
+  userId Int @map("user_id")
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+
+  @@map("bills")
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String
+  amount    Decimal
+  note      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  subCategoryId Int @map("sub_category_id")
+  billId        Int @map("bill_id")
+
+  subCategory SubCategory @relation(fields: [subCategoryId], references: [id])
+  bill        Bill        @relation(fields: [billId], references: [id])
+
+  @@map("transactions")
+}
