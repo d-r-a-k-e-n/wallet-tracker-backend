@@ -13,7 +13,7 @@ model User {
   email     String   @unique
   name      String
   password  String
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @map("updated_at")
 
   bills Bill[]
 
@@ -60,8 +60,8 @@ model Transaction {
   type      String
   amount    Decimal
   note      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updatedAt")
 
   subCategoryId Int @map("sub_category_id")
   billId        Int @map("bill_id")
