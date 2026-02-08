@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from 'src/modules/user/user.service';
 import { RegisterDto } from 'src/modules/auth/dto/register.dto';
 import { LoginDto } from 'src/modules/auth/dto/login.dto';
@@ -13,46 +13,61 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  private generateToken(payload: jwtPayload) {
-    const accessToken = this.jwtService.sign(payload);
-    return { accessToken };
+  private async generateTokens(payload: jwtPayload) {
+    const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: +process.env.JWT_REFRESH_TOKEN_LIFETIME!,
+      secret: process.env.JWT_SECRET_REFRESH,
+    });
+    return { accessToken, refreshToken };
   }
 
   getAllUsers() {
-    try {
-      return this.userService.getAllUser();
-    } catch {
-      return { message: 'Something went wrong' };
-    }
+    return this.userService.getAllUser();
   }
 
   async register(body: RegisterDto) {
-    try {
-      const heshPassword = await bcrypt.hash(body.password, 10);
-      await this.userService.createUser({
-        email: body.email,
-        password: heshPassword,
-        name: body.name,
-      });
+    const heshPassword = await bcrypt.hash(body.password, 10);
+    await this.userService.createUser({
+      email: body.email,
+      password: heshPassword,
+      name: body.name,
+    });
 
-      return { message: 'User registered successfully' };
-    } catch {
-      return { message: 'Something went wrong' };
-    }
+    return { message: 'User registered successfully' };
   }
 
   async login(body: LoginDto) {
     const user = await this.userService.findByEmail(body.email);
 
-    if (!user) return { message: 'Email or password is incorrect' };
+    if (!user) throw new BadRequestException('Email or password is incorrect');
 
     const isPasswordValid = await bcrypt.compare(body.password, user.password);
 
-    if (!isPasswordValid) return { message: 'Email or password is incorrect' };
+    if (!isPasswordValid)
+      throw new BadRequestException('Email or password is incorrect');
 
-    const payload: jwtPayload = { id: user.id, name: user.name };
-    const tokens = this.generateToken(payload);
+    const payload: jwtPayload = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+    return this.generateTokens(payload);
+  }
 
-    return tokens;
+  async refreshToken(token: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET_REFRESH,
+      });
+
+      return this.generateTokens({
+        id: payload.id,
+        name: payload.name,
+        email: payload.email,
+      });
+    } catch (e) {
+      throw new BadRequestException('Invalid refresh token');
+    }
   }
 }
