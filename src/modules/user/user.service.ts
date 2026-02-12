@@ -7,7 +7,7 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async getAllUser() {
-    return this.prisma.user.findMany();
+    return await this.prisma.user.findMany();
   }
 
   async createUser({ email, password, name }: RegisterDto) {
@@ -27,7 +27,7 @@ export class UserService {
   }
 
   async findById(id: string) {
-    return this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { id },
     });
   }
