@@ -21,7 +21,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: +process.env.JWT_REFRESH_TOKEN_LIFETIME!,
-      secret: process.env.JWT_SECRET_REFRESH,
+      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
     });
     return { accessToken, refreshToken };
   }
@@ -58,7 +58,7 @@ export class AuthService {
   // async refreshToken(token: string) {
   //   try {
   //     const payload = await this.jwtService.verifyAsync(token, {
-  //       secret: process.env.JWT_SECRET_REFRESH,
+  //       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
   //     });
 
   //     return this.generateTokens({
@@ -69,12 +69,12 @@ export class AuthService {
   //   } catch (e) {
   //     throw new BadRequestException('Invalid refresh token');
   //   }
-  // }
+  // }`
   async refreshToken(refreshToken: string) {
     try {
-      const payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.JWT_SECRET_REFRESH,
-      });
+      const payload = (await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      })) as unknown as IJwtPayload;
 
       const { accessToken } = await this.generateTokens({
         id: payload.id,
@@ -84,7 +84,7 @@ export class AuthService {
 
       return { accessToken };
     } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Invalid refresh token' + error);
     }
   }
 }
