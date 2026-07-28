@@ -20,22 +20,20 @@ export class AuthController {
   }
 
   private cookieOptions(maxAgeSeconds: number): CookieOptions {
-    const prod = this.isProd();
     return {
       httpOnly: true,
-      sameSite: prod ? 'none' : 'lax',
-      secure: prod,
+      sameSite: 'lax',
+      secure: this.isProd(),
       path: '/',
       maxAge: maxAgeSeconds * 1000,
     };
   }
 
   private clearAuthCookies(res: Response) {
-    const prod = this.isProd();
     const clearOptions: CookieOptions = {
       httpOnly: true,
-      sameSite: prod ? 'none' : 'lax',
-      secure: prod,
+      sameSite: 'lax',
+      secure: this.isProd(),
       path: '/',
     };
     res.clearCookie('accessToken', clearOptions);
