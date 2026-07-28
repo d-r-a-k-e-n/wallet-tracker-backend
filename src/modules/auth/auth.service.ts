@@ -1,14 +1,14 @@
 import { JwtService } from '@nestjs/jwt';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from 'src/modules/user/user.service';
-import { RegisterDto } from 'src/modules/auth/dto/register.dto';
-import { LoginDto } from 'src/modules/auth/dto/login.dto';
-import { IJwtPayload } from 'src/modules/auth/types/jwtPayload';
+import { UserService } from '../user/user.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { IJwtPayload } from './types/jwtPayload';
 
 @Injectable()
 export class AuthService {

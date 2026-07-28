@@ -4,7 +4,7 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserService } from 'src/modules/user/user.service';
+import { UserService } from '../../user/user.service';
 
 @Injectable()
 export class JwtUserGuard extends AuthGuard('jwt-user') {

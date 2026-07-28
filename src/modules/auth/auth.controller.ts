@@ -6,30 +6,36 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthService } from 'src/modules/auth/auth.service';
-import { RegisterDto } from 'src/modules/auth/dto/register.dto';
-import { LoginDto } from 'src/modules/auth/dto/login.dto';
+import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 import type { CookieOptions, Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private isProd() {
+    return process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  }
+
   private cookieOptions(maxAgeSeconds: number): CookieOptions {
+    const prod = this.isProd();
     return {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: prod ? 'none' : 'lax',
+      secure: prod,
       path: '/',
       maxAge: maxAgeSeconds * 1000,
     };
   }
 
   private clearAuthCookies(res: Response) {
+    const prod = this.isProd();
     const clearOptions: CookieOptions = {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: prod ? 'none' : 'lax',
+      secure: prod,
       path: '/',
     };
     res.clearCookie('accessToken', clearOptions);
