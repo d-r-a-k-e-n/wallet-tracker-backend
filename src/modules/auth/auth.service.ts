@@ -28,17 +28,17 @@ export class AuthService {
 
   async register(body: RegisterDto) {
     const heshPassword = await bcrypt.hash(body.password, 10);
-    await this.userService.createUser({
+    const newUser = await this.userService.createUser({
       email: body.email,
       password: heshPassword,
       name: body.name,
     });
 
-    return { message: 'User registered successfully' };
+    return { data: newUser };
   }
 
   async login(body: LoginDto) {
-    const { data: user } = await this.userService.findByEmail(body.email);
+    const { data: user } = await this.userService.getProfile(body.email);
 
     if (!user) throw new BadRequestException('Email or password is incorrect');
 

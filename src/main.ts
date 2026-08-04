@@ -107,14 +107,17 @@ function ensureNestApp() {
 async function bootstrap() {
   await ensureNestApp();
   const port = process.env.PORT ?? 3000;
-  await expressApp.listen(port);
+  expressApp.listen(port);
 }
 
 if (!process.env.VERCEL) {
-  bootstrap();
+  void bootstrap();
 }
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(
+  req: Request,
+  res: Response,
+): Promise<void> {
   applyCors(req, res);
 
   if (req.method === 'OPTIONS') {
@@ -123,5 +126,5 @@ export default async function handler(req: Request, res: Response) {
   }
 
   await ensureNestApp();
-  return expressApp(req, res);
+  expressApp(req, res);
 }

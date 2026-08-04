@@ -58,8 +58,15 @@ export class UserController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findById(@Req() req: IRequestUser) {
-    return await this.userService.findById(req.user.id);
+  async getProfile(@Req() req: IRequestUser) {
+    const { data } = await this.userService.getProfile(req.user.email);
+    return {
+      data: {
+        id: data?.id,
+        email: data?.email,
+        name: data?.name,
+      },
+    };
   }
 
   @Delete(':id')

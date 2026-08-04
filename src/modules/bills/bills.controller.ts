@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  InternalServerErrorException,
   Req,
   UseGuards,
   Delete,
@@ -55,14 +54,7 @@ export class BillsController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getMyBills(@Req() req: IRequestUser) {
-    try {
-      const bills = await this.billsService.getMyBills(req.user.id);
-      return {
-        data: bills,
-      };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return await this.billsService.getMyBills(req.user.id);
   }
 
   @Delete(':id')
@@ -77,14 +69,7 @@ export class BillsController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async deleteBill(@Param('id') id: string) {
-    try {
-      await this.billsService.deleteBill(id);
-      return {
-        message: 'Bill deleted successfully',
-      };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return await this.billsService.deleteBill(id);
   }
 
   @Post('')
@@ -102,14 +87,7 @@ export class BillsController {
     @Req() req: IRequestUser,
     @Body() createBillDto: CreateBillDto,
   ) {
-    try {
-      await this.billsService.createBill(req.user.id, createBillDto);
-      return {
-        message: 'Bill created successfully',
-      };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return await this.billsService.createBill(req.user.id, createBillDto);
   }
 
   @Patch(':id')
@@ -128,13 +106,6 @@ export class BillsController {
     @Param('id') id: string,
     @Body() updateBillDto: UpdateBillDto,
   ) {
-    try {
-      await this.billsService.updateBill(id, { ...updateBillDto });
-      return {
-        message: 'Bill updated successfully',
-      };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return await this.billsService.updateBill(id, { ...updateBillDto });
   }
 }

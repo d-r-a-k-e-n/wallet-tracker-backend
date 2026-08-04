@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
 import { CreateBillDto } from './dto/createBill.dto';
 import { UpdateBillDto } from './dto/updateBill.dto';
@@ -16,40 +20,69 @@ export class BillsService {
   };
 
   async getMyBills(userId: string) {
-    return await this.prisma.bill.findMany({
-      where: {
-        userId,
-      },
-    });
+    try {
+      const bills = await this.prisma.bill.findMany({
+        where: {
+          userId,
+        },
+      });
+      return {
+        data: bills,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async deleteBill(id: string) {
-    await this.prisma.bill.deleteMany({
-      where: {
-        id,
-      },
-    });
+    try {
+      await this.prisma.bill.deleteMany({
+        where: {
+          id,
+        },
+      });
+      return {
+        message: 'Bill deleted successfully',
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async createBill(userId: string, { name, currency }: CreateBillDto) {
-    return await this.prisma.bill.create({
-      data: {
-        userId,
-        name,
-        currency: this.getCurrencyInfo(currency).code,
-      },
-    });
+    try {
+      const createdBill = await this.prisma.bill.create({
+        data: {
+          userId,
+          name,
+          currency: this.getCurrencyInfo(currency).code,
+        },
+      });
+
+      return {
+        data: createdBill,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async updateBill(id: string, { name, currency }: UpdateBillDto) {
-    return await this.prisma.bill.update({
-      where: {
-        id,
-      },
-      data: {
-        name,
-        currency: currency ? this.getCurrencyInfo(currency)?.code : undefined,
-      },
-    });
+    try {
+      const updatedBill = await this.prisma.bill.update({
+        where: {
+          id,
+        },
+        data: {
+          name,
+          currency: currency ? this.getCurrencyInfo(currency)?.code : undefined,
+        },
+      });
+      return {
+        data: updatedBill,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 }
