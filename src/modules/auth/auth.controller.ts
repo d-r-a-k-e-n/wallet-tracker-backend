@@ -9,7 +9,8 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import type { CookieOptions, Request, Response } from 'express';
+import type { CookieOptions, Response } from 'express';
+import type { IRequestWithCookies } from './types/requestUser.type';
 
 @Controller('auth')
 export class AuthController {
@@ -68,10 +69,10 @@ export class AuthController {
 
   @Post('refresh')
   async refreshToken(
-    @Req() req: Request,
+    @Req() req: IRequestWithCookies,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token missing');

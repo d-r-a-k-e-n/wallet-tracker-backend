@@ -4,11 +4,12 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserService } from '../../user/user.service';
+import type { IJwtPayload } from '../types/jwtPayload.type';
+import type { IRequestUser } from '../types/requestUser.type';
 
 @Injectable()
 export class JwtUserGuard extends AuthGuard('jwt-user') {
-  constructor(private readonly userServise: UserService) {
+  constructor() {
     super();
   }
 
@@ -18,15 +19,9 @@ export class JwtUserGuard extends AuthGuard('jwt-user') {
       throw new UnauthorizedException();
     }
 
-    const req = context.switchToHttp().getRequest();
-    const user = req.user;
+    const req: IRequestUser = context.switchToHttp().getRequest();
+    const user: IJwtPayload = req.user;
     if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    const userInfo = await this.userServise.findById(user.id);
-
-    if (!userInfo) {
       throw new UnauthorizedException();
     }
 

@@ -8,7 +8,7 @@ import {
 import { UserService } from '../user/user.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { IJwtPayload } from './types/jwtPayload';
+import { IJwtPayload } from './types/jwtPayload.type';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +38,7 @@ export class AuthService {
   }
 
   async login(body: LoginDto) {
-    const user = await this.userService.findByEmail(body.email);
+    const { data: user } = await this.userService.findByEmail(body.email);
 
     if (!user) throw new BadRequestException('Email or password is incorrect');
 
@@ -55,21 +55,6 @@ export class AuthService {
     return this.generateTokens(payload);
   }
 
-  // async refreshToken(token: string) {
-  //   try {
-  //     const payload = await this.jwtService.verifyAsync(token, {
-  //       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-  //     });
-
-  //     return this.generateTokens({
-  //       id: payload.id,
-  //       name: payload.name,
-  //       email: payload.email,
-  //     });
-  //   } catch (e) {
-  //     throw new BadRequestException('Invalid refresh token');
-  //   }
-  // }`
   async refreshToken(refreshToken: string) {
     try {
       const payload = (await this.jwtService.verifyAsync(refreshToken, {

@@ -6,8 +6,29 @@ import { RegisterDto } from '../auth/dto/register.dto';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
+  async findByEmail(email: string) {
+    return {
+      data: await this.prisma.user.findUnique({
+        where: { email },
+      }),
+    };
+  }
+
+  async findById(id: string) {
+    return {
+      data: await this.prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      }),
+    };
+  }
+
   async getAllUser() {
-    return await this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       select: {
         id: true,
         email: true,
@@ -15,10 +36,14 @@ export class UserService {
         updatedAt: true,
       },
     });
+
+    return {
+      data: users,
+    };
   }
 
   async createUser({ email, password, name }: RegisterDto) {
-    await this.prisma.user.create({
+    return await this.prisma.user.create({
       data: {
         email,
         password,
@@ -27,21 +52,16 @@ export class UserService {
     });
   }
 
-  async findByEmail(email: string) {
-    return await this.prisma.user.findUnique({
-      where: { email },
-    });
-  }
-
-  async findById(id: string) {
-    return await this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        updatedAt: true,
-      },
-    });
+  async deleteById(id: string) {
+    return {
+      data: await this.prisma.user.delete({
+        where: { id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      }),
+    };
   }
 }
