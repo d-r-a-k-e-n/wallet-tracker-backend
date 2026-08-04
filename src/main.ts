@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import express from 'express';
@@ -68,6 +69,30 @@ async function createNestApp() {
       'Cookie',
     ],
   });
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Wallet Tracker API')
+    .setDescription('API documentation for Wallet Tracker backend')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT access token',
+      },
+      'access-token',
+    )
+    .addCookieAuth('accessToken', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'accessToken',
+      description: 'JWT access token cookie (set on login)',
+    })
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
 
   await app.init();
 }

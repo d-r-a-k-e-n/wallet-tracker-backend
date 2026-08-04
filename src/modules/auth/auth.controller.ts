@@ -6,12 +6,14 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import type { CookieOptions, Response } from 'express';
 import type { IRequestWithCookies } from './types/requestUser.type';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -42,11 +44,35 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User registered successfully',
+    schema: {
+      example: { message: 'User registered successfully' },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   register(@Body() body: RegisterDto) {
     return this.authService.register(body);
   }
 
   @Post('login')
+  @ApiOperation({
+    summary: 'Login user',
+    description:
+      'Authenticates the user and sets `accessToken` and `refreshToken` HTTP-only cookies.',
+  })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful, auth cookies set',
+    schema: {
+      example: { ok: true },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Email or password is incorrect' })
   async login(
     @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -68,6 +94,19 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @ApiOperation({
+    summary: 'Refresh access token',
+    description:
+      'Uses the `refreshToken` HTTP-only cookie to issue a new `accessToken` cookie. No request body required.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Access token refreshed',
+    schema: {
+      example: { ok: true },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Refresh token missing or invalid' })
   async refreshToken(
     @Req() req: IRequestWithCookies,
     @Res({ passthrough: true }) res: Response,
@@ -90,6 +129,17 @@ export class AuthController {
   }
 
   @Post('logout')
+  @ApiOperation({
+    summary: 'Logout user',
+    description: 'Clears `accessToken` and `refreshToken` cookies.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Logged out successfully',
+    schema: {
+      example: { ok: true },
+    },
+  })
   logout(@Res({ passthrough: true }) res: Response) {
     this.clearAuthCookies(res);
     return { ok: true };
