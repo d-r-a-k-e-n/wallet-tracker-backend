@@ -9,6 +9,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
 model User {
   id        String      @id @default(uuid())
   email     String   @unique
@@ -43,9 +48,10 @@ model SubCategory {
 }
 
 model Bill {
-  id       String    @id @default(uuid())
+  id       String  @id @default(uuid())
   name     String
   currency String
+  balance  Decimal @default(0) @db.Decimal(19, 2)
 
   userId String @map("user_id")
 
@@ -56,13 +62,13 @@ model Bill {
 }
 
 model Transaction {
-  id        String      @id @default(uuid())
+  id        String          @id @default(uuid())
   name      String
-  type      String
-  amount    Decimal
+  type      TransactionType
+  amount    Decimal         @db.Decimal(19, 2)
   note      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @default(now()) @map("updated_at")
 
   subCategoryId String @map("sub_category_id")
   billId        String @map("bill_id")

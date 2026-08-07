@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsNumber, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateBillDto {
   @ApiProperty({
@@ -17,4 +18,13 @@ export class CreateBillDto {
   @IsString()
   @IsNotEmpty()
   currency!: string;
+
+  @ApiProperty({
+    example: 1000,
+    description: 'Balance',
+  })
+  @Transform(({ value }) => Number(value))
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsNotEmpty()
+  balance!: number;
 }
