@@ -15,20 +15,25 @@ enum TransactionType {
 }
 
 model User {
-  id        String      @id @default(uuid())
+  id        String   @id @default(uuid())
   email     String   @unique
   name      String
   password  String
   updatedAt DateTime @default(now()) @map("updated_at")
 
-  bills Bill[]
+  bills       Bill[]
+  Categorie   Categorie[]
+  SubCategory SubCategory[]
 
   @@map("users")
 }
 
 model Categorie {
-  id   String    @id @default(uuid())
-  name String
+  id     String  @id @default(uuid())
+  name   String
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  color  String  @default("#0085B2")
 
   subCategories SubCategory[]
 
@@ -36,8 +41,10 @@ model Categorie {
 }
 
 model SubCategory {
-  id   String    @id @default(uuid())
-  name String
+  id     String  @id @default(uuid())
+  name   String
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   categoryId String @map("category_id")
 
@@ -52,6 +59,7 @@ model Bill {
   name     String
   currency String
   balance  Decimal @default(0) @db.Decimal(19, 2)
+  color    String  @default("#32CD32")
 
   userId String @map("user_id")
 

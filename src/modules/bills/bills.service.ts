@@ -51,7 +51,7 @@ export class BillsService {
 
   async createBill(
     userId: string,
-    { name, currency, balance = 0 }: CreateBillDto,
+    { name, currency, balance = 0, color }: CreateBillDto,
   ) {
     try {
       const createdBill = await this.prisma.bill.create({
@@ -59,6 +59,7 @@ export class BillsService {
           userId,
           name,
           balance,
+          color,
           currency: this.getCurrencyInfo(currency).code,
         },
       });

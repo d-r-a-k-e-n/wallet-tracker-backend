@@ -27,4 +27,12 @@ export class CreateBillDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsNotEmpty()
   balance!: number;
+
+  @ApiProperty({
+    example: '#32CD32',
+    description: 'Color',
+  })
+  @IsString()
+  @IsNotEmpty()
+  color!: string;
 }
